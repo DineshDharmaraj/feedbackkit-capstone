@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "description": "Filesystem MCP scoped to the FeedbackKit project. Used by /add-endpoint and by the admin UI when authoring new tag rules — the client asks the MCP to grep for similar patterns across seed data before persisting."
+    }
+  }
+}

@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    name: typecheck + audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Prisma generate
+        run: npx prisma generate
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Audit (production deps only)
+        run: npm audit --omit=dev --audit-level=high
+
+  test:
+    name: vitest + coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Prisma migrate + generate (test db)
+        run: |
+          npx prisma migrate deploy
+          npx prisma generate
+        env:
+          DATABASE_URL: "file:./test.db"
+      - run: npm test
+        env:
+          DATABASE_URL: "file:./test.db"
+          JWT_SECRET: "ci-secret"

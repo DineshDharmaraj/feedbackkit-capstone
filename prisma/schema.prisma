@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         String     @default("triager")  // "triager" | "admin"
+  createdAt    DateTime   @default(now())
+  feedback     Feedback[] @relation("Reports")
+}
+
+model Feedback {
+  id         Int      @id @default(autoincrement())
+  title      String
+  body       String
+  status     String   @default("open")   // "open" | "closed"
+  reporterId Int?
+  reporter   User?    @relation("Reports", fields: [reporterId], references: [id])
+  createdAt  DateTime @default(now())
+  tags       Tag[]    @relation("FeedbackTags")
+}
+
+model Tag {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
+  color    String
+  feedback Feedback[] @relation("FeedbackTags")
+  rules    TagRule[]
+}
+
+model TagRule {
+  id      Int    @id @default(autoincrement())
+  pattern String
+  tagId   Int
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  weight  Int    @default(1)
+}
