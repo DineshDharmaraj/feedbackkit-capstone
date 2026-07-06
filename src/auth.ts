@@ -29,7 +29,8 @@ export function verifyPassword(plain: string, hash: string) {
 }
 
 export function signToken(user: { id: number; email: string; role: string }) {
-  return jwt.sign({ sub: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: TTL });
+  const opts = { expiresIn: TTL } as jwt.SignOptions;
+  return jwt.sign({ sub: user.id, email: user.email, role: user.role }, SECRET, opts);
 }
 
 declare global {
